@@ -1,0 +1,493 @@
+<aura:component controller="OrderInfoController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+	 
+      
+    <aura:attribute name="OrderList" type="List"/>
+    <aura:attribute name="Order" type="Object"/>
+    <aura:attribute name="noteList" type="List" />
+    <aura:attribute name="jsonArray" type="Object[]"     />
+    
+     <aura:attribute name="OrderNo" type="String" />
+    
+     <aura:attribute name="territoryInfo" type="String" />
+     <aura:attribute name="StatusMessage" type="String" />
+     <aura:attribute name="orderDetailData" type="Object" />
+    
+    
+    
+    <aura:attribute name="orderlineData" type="Object" />
+     <aura:attribute name="orderlineDataCount" type="String" />
+    <aura:attribute name="orderlineColumns" type="List" />
+    
+    <aura:attribute name="orderNoteData" type="Object" />
+     <aura:attribute name="orderNoteDataCount" type="String" />
+    <aura:attribute name="orderNoteColumns" type="List" />
+    
+     <aura:method name="getOrderDetails" action="{!c.doAction}" description="method with parameters">
+         <aura:attribute name="orderNumber" type="String" />
+     </aura:method>
+     <!-- SHOW LOADING SPINNER--> 
+    <lightning:spinner variant="brand" size="large" aura:id="Id_spinner" class="slds-hide" />
+    
+    <div class="slds-page-header slds-page-header_record-home">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container slds-icon-standard-opportunity">
+                            <lightning:icon iconName="standard:orders" alternativeText="Icon"/>
+                           </span> 
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span>Order</span>
+                                        <span class="slds-page-header__title slds-truncate" title="{!v.Order.orderNumber}">Order Number: {!v.Order.orderNumber}</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__col-actions">
+                    <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            
+                        </div>
+                        <div class="slds-page-header__control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-page-header__row slds-page-header__row_gutters">
+                <div class="slds-page-header__col-details">
+                    <ul class="slds-page-header__detail-row">
+                        <li class="slds-page-header__detail-block">
+                            <div class="slds-text-title slds-truncate" title="Order Date">Order Date</div>
+                            <div class="slds-truncate" title="{!v.Order.orderDate}"><lightning:formattedDateTime aura:id="dt"
+                                                             value="{!v.Order.orderDate}"
+                                                             month="short"
+                                                             day="numeric"
+                                                             year="numeric"                                    
+                                                             timeZone="UTC"/> </div>
+                        </li>
+                        <li class="slds-page-header__detail-block">
+                            <div class="slds-text-title slds-truncate" title="Field 3">Ship To Customer Name</div>
+                             <div class="slds-truncate" title="Multiple Values"><lightning:formattedUrl value="{!v.Order.AccountIdShipTo}" label="{!v.Order.shipToCustomerName}" tooltip="Go to Account" /></div>
+                        </li>
+                        <li class="slds-page-header__detail-block">
+                            <div class="slds-text-title slds-truncate" title="Field 2 (3)">Ship To
+                                <div class="slds-dropdown-trigger slds-dropdown-trigger_click">
+                                     
+                                </div>
+                            </div>
+                            <div class="slds-truncate" title="Multiple Values"><lightning:formattedAddress
+                                                                                                           street="{!v.Order.shipToAddressLine1}"
+                                                                                                           city="{!v.Order.shipToCity}"
+                                                                                                           country="{!v.Order.shipToCountry}"
+                                                                                                           province="{!v.Order.shipToState}"
+                                                                                                           postalCode="{!v.Order.shipToZip}"
+                                                                                                           /> </div>
+                        </li>
+                        <li class="slds-page-header__detail-block">
+                            <div class="slds-text-title slds-truncate" title="Field 3">P.O.Number</div>
+                             <div class="slds-truncate" title="Multiple Values">{!v.Order.poNumber}</div>
+                        </li>
+                        <li class="slds-page-header__detail-block">
+                            <div class="slds-text-title slds-truncate" title="Field 4">Pro Tracer Number</div>
+                            <div class="slds-truncate" title="{!v.Order.proTracerNumber}">{!v.Order.proTracerNumber}</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+      
+        <br/>
+    
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_12-of-12">
+            <span>
+                <lightning:card >
+                    <lightning:tabset selectedTabId="orders" variant="scoped">
+                        <lightning:tab label="Details" id="orders">
+                            <div aura:id="data-entry">
+                            <!-- PAGE HEADER DETAIL ROW -->
+                            
+                                <div class="slds-form" role="list">
+                                     <div class="slds-form__row">
+                                         <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Sold To Customer Name</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static"><lightning:formattedUrl value="{!v.Order.AccountIdSoldTo}" label="{!v.Order.soldToCustomerName}" tooltip="Go to Account" /></div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Ship To Customer Name</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static"><lightning:formattedUrl value="{!v.Order.AccountIdShipTo}" label="{!v.Order.shipToCustomerName}" tooltip="Go to Account" /></div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">PO Number</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.poNumber}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Order Number</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.orderNumber}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Invoice Number</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.invoiceNumber}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>  
+                                         <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Order Received Date</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static"><lightning:formattedDateTime aura:id="dt"
+                                                             value="{!v.Order.orderDate}"
+                                                             month="short"
+                                                             day="numeric"
+                                                             year="numeric"                                    
+                                                             timeZone="UTC"/></div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                                                             
+                                    </div>
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Invoice Date</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static"><lightning:formattedDateTime aura:id="dt"
+                                                             value="{!v.Order.invoiceDate}"
+                                                             month="short"
+                                                             day="numeric"
+                                                             year="numeric"                                    
+                                                             timeZone="UTC"/></div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Order Status</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.statusDescription}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Type (Commercial, Residential)</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.gTerrType}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Pro Tracer Number</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.proTracerNumber}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                                   
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Load ID</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.loadId}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Requested Ship Date:</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static"><lightning:formattedDateTime aura:id="dt"
+                                                             value="{!v.Order.requestDate}"
+                                                             month="short"
+                                                             day="numeric"
+                                                             year="numeric"                                    
+                                                             timeZone="UTC"/></div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>  
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Weight:</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.weight}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Scheduled Delivery Date:</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static"><lightning:formattedDateTime aura:id="dt"
+                                                             value="{!v.Order.scheduledDeliveryDate}"
+                                                             month="short"
+                                                             day="numeric"
+                                                             year="numeric"                                    
+                                                             timeZone="UTC"/></div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Sourcing Location:</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.inventoryBusinessUnit}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">                                           
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Scheduled Ship Date:</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static"><lightning:formattedDateTime aura:id="dt"
+                                                             value="{!v.Order.scheduledShipDate}"
+                                                             month="short"
+                                                             day="numeric"
+                                                             year="numeric"                                    
+                                                             timeZone="UTC"/></div>
+                                                    
+                                                </div>
+                                            </div>                                        
+                                        </div>
+                                    </div> 
+                                     <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Ship Via:</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.shipVia}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Ship Type:</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.shipType}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">
+                                                    <abbr class="slds-required" title="required"> </abbr>Sold To Address</span>
+                                                <div class="slds-form-element__icon">
+                                                    
+                                                </div>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">                                                        
+                                                       <lightning:formattedAddress
+                                                                                                                       street="{!v.Order.soldToAddressLine1}"
+                                                                                                                       city="{!v.Order.soldToCity}"
+                                                                                                                       country="{!v.Order.soldToCountry}"
+                                                                                                                       province="{!v.Order.soldToState}"
+                                                                                                                       postalCode="{!v.Order.soldToZip}"
+                                                                                                                       />
+                                                        
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Shipping Address</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static"><lightning:formattedAddress
+                                                                                                                       street="{!v.Order.shipToAddressLine1}"
+                                                                                                                       city="{!v.Order.shipToCity}"
+                                                                                                                       country="{!v.Order.shipToCountry}"
+                                                                                                                       province="{!v.Order.shipToState}"
+                                                                                                                       postalCode="{!v.Order.shipToZip}"
+                                                                                                                       />
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                     <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Buying Agreement</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.buyingAgreement}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                            <div
+                                                 class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+                                                <span class="slds-form-element__label">Currency</span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">{!v.Order.currencyCd}</div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                           
+<!-- / PAGE HEADER DETAIL ROW -->
+                             </div>
+                        </lightning:tab>
+                        <lightning:tab label="Line Items" id="lineitems">
+                            <div class="slds-page-header">
+                                <div class="slds-page-header__row">
+                                    <div class="slds-page-header__col-title">
+                                        <div class="slds-media">
+                                            <div class="slds-media__figure">
+                                                <span class="slds-icon_container slds-icon-standard-opportunity" title="opportunity">
+                                                    <lightning:icon iconName="standard:order_item" alternativeText="Icon"/>
+                                                    <span class="slds-assistive-text">Order Line Items</span>
+                                                </span>
+                                            </div>
+                                            <div class="slds-media__body">
+                                                <div class="slds-page-header__name">
+                                                    <div class="slds-page-header__name-title">
+                                                        <h1>
+                                                            <span class="slds-page-header__title slds-truncate" title="Order Line Items">Order Line Items</span>
+                                                        </h1>
+                                                    </div>
+                                                </div>
+                                                <p class="slds-page-header__name-meta">Total number of items: {!v.orderlineDataCount} </p>
+                                            </div> 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="height: 300px">
+                                <lightning:datatable
+                                                     data="{!v.orderlineData}"
+                                                     columns="{!v.orderlineColumns}"
+                                                     keyField="orderNumber"                                                    
+                                                     hideCheckboxColumn= "true"
+                                                     />
+                            </div>
+                        </lightning:tab>
+                        <lightning:tab label="Notes" id="notes">
+                            <div class="slds-page-header">
+                                <div class="slds-page-header__row">
+                                    <div class="slds-page-header__col-title">
+                                        <div class="slds-media">
+                                            <div class="slds-media__figure">
+                                                <span class="slds-icon_container slds-icon-standard-opportunity" title="Order Line Items">
+                                                    <lightning:icon iconName="standard:note" alternativeText="Icon"/>
+                                                    <span class="slds-assistive-text">Order Line Items</span>
+                                                </span>
+                                            </div>
+                                            <div class="slds-media__body">
+                                                <div class="slds-page-header__name">
+                                                    <div class="slds-page-header__name-title">
+                                                        <h1>
+                                                            <span class="slds-page-header__title slds-truncate" title="Rohde Corp - 80,000 Widgets">Order Notes</span>
+                                                        </h1>
+                                                    </div>
+                                                </div>
+                                                <p class="slds-page-header__name-meta">Total number of items: {!v.orderNoteDataCount}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="height: 300px">
+                                <lightning:datatable
+                                                     data="{!v.orderNoteData}"
+                                                     columns="{!v.orderNoteColumns}"
+                                                     keyField="orderNumber"                                                    
+                                                     hideCheckboxColumn= "true"
+                                                     />
+                            </div>
+                        </lightning:tab>
+                    </lightning:tabset>
+                </lightning:card>
+            </span>
+        </div>    
+        
+    </div>    
+
+</aura:component>

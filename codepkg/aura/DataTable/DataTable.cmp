@@ -1,0 +1,64 @@
+<!--
+  @File Name          : DataTable.cmp
+  @Description        : 
+  @Author             : Syed Basha
+  @Group              : 
+  @Last Modified By   : Syed Basha
+  @Last Modified On   : 11/9/2019, 1:47:47 AM
+  @Modification Log   : 
+  Ver       Date            Author      		    Modification
+  1.0    11/8/2019   Syed Basha     Initial Version
+-->
+<aura:component controller="DataTableController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <aura:attribute name="mydata" type="Object"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="params" type="Object"/>
+    <aura:attribute name="keyField" type="String"/>     
+    <aura:attribute name="TotalPages" type="integer" default="0"/>
+    <aura:attribute name="method" type="Aura.action"/>
+     <aura:attribute name="errorMessage" type="String"/>
+    
+     <!-- Add dependency to server side action service -->
+    <c:GAFServerActionService aura:id="server"/>
+    
+    <lightning:notificationsLibrary aura:id="notifLib"/>    
+    
+    
+    <aura:registerEvent name="sampleCmpEvent" type="c:SampleComponentEvent" />
+    
+     <!-- Aura method-->
+     <aura:method name="getRecords" action="{!c.doAction}" description="method with parameters">
+         <aura:attribute name="param" type="Object" />
+     </aura:method>
+    <aura:attribute name="recordCount" type="Integer" default="0"/>
+    <aura:attribute name="pageNumber" type="Integer" default="1"/> 
+     <aura:attribute name="pageSize" type="Integer" default="25"/>
+    <aura:attribute name="isLastPage" type="Boolean" default="false"/>
+    <aura:attribute name="isDisplayPaging" type="Boolean" default="false"/>
+    <aura:attribute name="dataSize" type="Integer" default="0"/> 
+    <aura:attribute name="showError" type="Boolean" default="false"/>
+    
+     <!-- SHOW LOADING SPINNER--> 
+    <lightning:spinner variant="brand" size="large" aura:id="Id_spinner" class="slds-hide" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <lightning:datatable data="{! v.mydata }" 
+                         columns="{! v.mycolumns }" 
+                         keyField="{! v.keyField }"
+                         hideCheckboxColumn="true"
+                         onrowaction="{! c.handleRowAction }"
+                         />
+                         
+    	<div class="slds-clearfix">
+            <div class="slds-page-header" role="banner">
+                <div class="slds-float_right">            
+                    <lightning:button label="Prev" iconName="utility:chevronleft" iconPosition="left"
+                                      onclick="{!c.handlePrev}" disabled="{! v.pageNumber == 1}"/>
+                    <lightning:button label="Next" iconName="utility:chevronright" iconPosition="right"
+                                      disabled="{! v.isLastPage}" onclick="{!c.handleNext}"/>
+                </div>
+                <p class="slds-page-header__title">Page {!v.pageNumber} </p>
+            </div>
+        </div>	
+</aura:component>

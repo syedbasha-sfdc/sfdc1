@@ -1,0 +1,3 @@
+<aura:event type="COMPONENT" description="Component Event to show order details">
+    <aura:attribute name="orderNumber" type="String" />
+</aura:event>
